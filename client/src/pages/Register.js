@@ -3,6 +3,8 @@ import {Form , Button} from 'semantic-ui-react';
 import {useMutation, gql } from '@apollo/client';
 import {useNavigate} from 'react-router-dom';
 
+import { useForm } from '../util/hooks';
+
 const REGISTER_USER = gql`
     mutation Register($input: RegisterInput! ){
         register(registerInput: $input){
@@ -12,55 +14,40 @@ const REGISTER_USER = gql`
 `;
 
 function Register(props){
-    
-    const navigate = useNavigate();
 
+    const navigate = useNavigate();
     const [errors, setErrors] = useState({});
-    const [values, setValues] = useState({
-        username:"",
-        password:"",
-        confirmPassword:"",
-        email:""
+
+    const {onChange , onSubmit , values} = useForm(registerUser,{
+        username:'',
+        email:'',
+        password:'',
+        confirmPassword:''
     });
 
     const[addUser,{loading}] = useMutation(REGISTER_USER , {
        update(_, result){
         console.log(result);
 
-        
-
         navigate("/");
        },
        onError(err){
-            // console.log(err.graphQLErrors[0].extensions.errors);
             setErrors(err.graphQLErrors[0].extensions.errors);
        },
-       variables:values
+       variables:{
+        input:{
+            username:values.username,
+            password:values.password,
+            confirmPassword:values.confirmPassword,
+            email:values.email,
+        },
+    },
      });
 
-    const onChange = (event) =>{
-        setValues({...values, [event.target.name]: event.target.value});
-    }
 
-    const onSubmit = (event)=>{
-        event.preventDefault();
-        addUser({
-            variables:{
-                input:{
-                    username:values.username,
-                    password:values.password,
-                    confirmPassword:values.confirmPassword,
-                    email:values.email,
-                },
-            },
-        });
-        setValues({
-            username: "",
-            password: "",
-            confirmPassword:"",
-            email:""
-          });
-    };
+    function registerUser(){
+        addUser();
+    }
 
     return(
         <div className='form-container' >
@@ -112,14 +99,14 @@ function Register(props){
             </Form>
             {Object.keys(errors).length > 0 && (
                 <div className="ui error message">
-                <ul className="list">
-                {Object.values(errors).map((value) => (
-                    <li key={value}>{value}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-        </div>
+                    <ul className="list">
+                        {Object.values(errors).map((value) => (
+                            <li key={value}>{value}</li>
+                        ))}
+                    </ul>
+                </div>
+                )}
+            </div>
 
     )
 }
