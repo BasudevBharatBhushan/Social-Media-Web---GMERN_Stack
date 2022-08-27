@@ -1,4 +1,0 @@
-Frontend of merng social media app
-
-- npx create-react-app client
-- npm i @apollo/client
