@@ -1,13 +1,15 @@
-import React,{useState} from 'react';
+import React,{useContext,useState} from 'react';
 import {Form , Button} from 'semantic-ui-react';
 import {useMutation, gql } from '@apollo/client';
 import {useNavigate} from 'react-router-dom';
 
+import { AuthContext } from '../context/auth';
 import { useForm } from '../util/hooks';
 
 export default function Login() {
   const navigate = useNavigate();
-//   const { login } = useAuth();
+  // const { login } = useAuth();
+  const context = useContext(AuthContext);
   const [errors, setErrors] = useState({});
 
   const initialState = {
@@ -21,9 +23,9 @@ export default function Login() {
   );
   const [loginUser, { loading }] = useMutation(LOGIN_USER, {
     // this "update" function will be triggered when the mutation is successful
-    update(_, result) {
-    //   login(userData);
-      console.log(result);
+    update(_, {data:{login:userData}}) {
+      console.log(userData);
+      context.login(userData);
       navigate("/");
     },
     onError(err) {
